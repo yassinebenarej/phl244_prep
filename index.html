@@ -7,7 +7,7 @@
 <meta name="description" content="Checklist for PHL 244 Writing Assignment 2: Hull, Davidson, and Broome on Williams — every issue, position, argument and objection to be able to write cold." />
 <meta name="robots" content="noindex" />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-<link rel="stylesheet" href="style.css?v=1" />
+<link rel="stylesheet" href="style.css?v=2" />
 </head>
 <body>
 
@@ -26,6 +26,8 @@
       <button class="chip" data-filter="all" type="button">All <span class="chip-count" id="c-all">0</span></button>
     </div>
     <span class="spacer"></span>
+    <button class="reset" id="reset-edits" type="button" hidden>Reset edits</button>
+    <button class="reset" id="edit-toggle" type="button">Edit</button>
   </div>
 
   <div id="groups"></div>
@@ -105,6 +107,16 @@
     ]}
   ];
 
+  var ITEMS_KEY = KEY + '-items';
+  var custom = {};
+  try { custom = JSON.parse(localStorage.getItem(ITEMS_KEY) || '{}') || {}; } catch (e) { custom = {}; }
+  GROUPS.forEach(function (g) { if (custom[g.id]) g.items = custom[g.id]; });
+  function saveItems() {
+    var out = {};
+    GROUPS.forEach(function (g) { out[g.id] = g.items; });
+    try { localStorage.setItem(ITEMS_KEY, JSON.stringify(out)); } catch (e) {}
+  }
+
   var TICK = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5 L6.5 12 L13 4.5" /></svg>';
 
   var saved = {};
@@ -117,7 +129,7 @@
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 
-  root.innerHTML = GROUPS.map(function (g) {
+  function groupsHtml() { return GROUPS.map(function (g) {
     var rows = g.items.map(function (it, i) {
       return '<label class="row-item" data-item="' + it.id + '">' +
         '<span class="check-zone">' +
@@ -125,9 +137,10 @@
           '<span class="check">' + TICK + '</span>' +
         '</span>' +
         '<span class="title-wrap">' +
-          '<span class="title">' + (g.numbered ? '<span class="idx">' + (i + 1) + '</span>' : '') + esc(it.t) + '</span>' +
-          (it.s ? '<span class="subtitle">' + it.s + '</span>' : '') +
+          '<span class="title">' + (g.numbered ? '<span class="idx">' + (i + 1) + '</span>' : '') + '<span class="t-text">' + esc(it.t) + '</span></span>' +
+          '<span class="subtitle s-text" data-empty="' + (it.s ? '' : '1') + '">' + esc(it.s || '') + '</span>' +
         '</span>' +
+        '<button class="del" type="button" aria-label="Delete item" hidden>&times;</button>' +
       '</label>';
     }).join('');
 
@@ -139,15 +152,18 @@
         '<span class="count"></span>' +
         '<span class="progress-mini"><span class="progress-mini-fill"></span></span>' +
       '</button>' +
-      '<div class="group-body">' + rows + '</div>' +
+      '<div class="group-body">' + rows + '<button class="add-item" type="button" hidden>+ Add item</button></div>' +
     '</div>';
-  }).join('');
+  }).join(''); }
 
-  var boxes = Array.prototype.slice.call(root.querySelectorAll('input[type=checkbox]'));
+  var boxes = [];
+  var editing = false;
 
   function save() {
+    // Keep ticks for items that are not currently in the DOM (e.g. hidden groups are still in the DOM, so this is just a guard).
     var out = {};
     boxes.forEach(function (b) { if (b.checked) out[b.dataset.id] = 1; });
+    saved = out;
     try { localStorage.setItem(KEY, JSON.stringify(out)); } catch (e) {}
   }
   function saveOpen() {
@@ -160,7 +176,7 @@
       var row = b.closest('.row-item');
       row.classList.toggle('done', b.checked);
       if (b.checked) done++;
-      var show = filter === 'all' || (filter === 'done' ? b.checked : !b.checked);
+      var show = editing || filter === 'all' || (filter === 'done' ? b.checked : !b.checked);
       row.style.display = show ? '' : 'none';
     });
 
@@ -179,24 +195,125 @@
       var visible = Array.prototype.filter.call(ins, function (b) {
         return b.closest('.row-item').style.display !== 'none';
       }).length;
-      el.style.display = visible === 0 && filter !== 'all' ? 'none' : '';
+      el.style.display = visible === 0 && filter !== 'all' && !editing ? 'none' : '';
     });
   }
 
-  boxes.forEach(function (b) {
-    if (saved[b.dataset.id]) b.checked = true;
-    b.addEventListener('change', function () { save(); render(); });
+  function build() {
+    root.innerHTML = groupsHtml();
+    boxes = Array.prototype.slice.call(root.querySelectorAll('input[type=checkbox]'));
+    boxes.forEach(function (b) {
+      if (saved[b.dataset.id]) b.checked = true;
+      b.addEventListener('change', function () { save(); render(); });
+    });
+    root.querySelectorAll('.group-head').forEach(function (h) {
+      h.addEventListener('click', function () {
+        var g = h.closest('.group');
+        var id = g.dataset.group;
+        var open = g.classList.toggle('open');
+        h.setAttribute('aria-expanded', String(open));
+        openState[id] = open;
+        saveOpen();
+      });
+    });
+    applyEditMode();
+    render();
+  }
+
+  // ---- editing: titles, notes, add and delete; stored in this browser ----
+  var editBtn = document.getElementById('edit-toggle');
+  var resetBtn = document.getElementById('reset-edits');
+
+  function findItem(id) {
+    for (var i = 0; i < GROUPS.length; i++) {
+      for (var j = 0; j < GROUPS[i].items.length; j++) {
+        if (GROUPS[i].items[j].id === id) return { g: GROUPS[i], i: j, it: GROUPS[i].items[j] };
+      }
+    }
+    return null;
+  }
+
+  function applyEditMode() {
+    document.body.classList.toggle('editing', editing);
+    root.querySelectorAll('.t-text, .s-text').forEach(function (el) {
+      el.contentEditable = editing ? 'true' : 'false';
+      el.spellcheck = true;
+    });
+    root.querySelectorAll('.del, .add-item').forEach(function (el) { el.hidden = !editing; });
+    editBtn.textContent = editing ? 'Done' : 'Edit';
+    resetBtn.hidden = !editing;
+  }
+
+  editBtn.addEventListener('click', function () {
+    editing = !editing;
+    applyEditMode();
+    render();
   });
 
-  root.querySelectorAll('.group-head').forEach(function (h) {
-    h.addEventListener('click', function () {
-      var g = h.closest('.group');
-      var id = g.dataset.group;
-      var open = g.classList.toggle('open');
-      h.setAttribute('aria-expanded', String(open));
-      openState[id] = open;
-      saveOpen();
-    });
+  resetBtn.addEventListener('click', function () {
+    if (!confirm('Discard all your edits, additions and deletions and restore the original checklist?')) return;
+    try { localStorage.removeItem(ITEMS_KEY); } catch (e) {}
+    location.reload();
+  });
+
+  // While editing, clicking text must place the cursor, not toggle the tick.
+  root.addEventListener('click', function (e) {
+    if (!editing) return;
+    var row = e.target.closest('.row-item');
+    if (row && !e.target.closest('.check-zone')) e.preventDefault();
+  });
+
+  root.addEventListener('input', function (e) {
+    var el = e.target;
+    var row = el.closest && el.closest('.row-item');
+    if (!row) return;
+    var f = findItem(row.dataset.item);
+    if (!f) return;
+    var text = el.textContent.replace(/\s+/g, ' ').trim();
+    if (el.classList.contains('t-text')) f.it.t = text;
+    else { f.it.s = text; el.dataset.empty = text ? '' : '1'; }
+    saveItems();
+  });
+
+  // Enter ends the line instead of inserting a line break; pasting is plain text.
+  root.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target.matches && e.target.matches('.t-text, .s-text')) {
+      e.preventDefault();
+      e.target.blur();
+    }
+  });
+  root.addEventListener('paste', function (e) {
+    if (!(e.target.matches && e.target.matches('.t-text, .s-text'))) return;
+    e.preventDefault();
+    var text = (e.clipboardData || window.clipboardData).getData('text/plain').replace(/\s+/g, ' ');
+    document.execCommand('insertText', false, text);
+  });
+
+  root.addEventListener('click', function (e) {
+    var del = e.target.closest('.del');
+    if (del) {
+      e.preventDefault();
+      var f = findItem(del.closest('.row-item').dataset.item);
+      if (f && confirm('Delete this item?')) {
+        f.g.items.splice(f.i, 1);
+        saveItems(); save(); build();
+      }
+      return;
+    }
+    var add = e.target.closest('.add-item');
+    if (add) {
+      var gid = add.closest('.group').dataset.group;
+      var g = GROUPS.filter(function (x) { return x.id === gid; })[0];
+      var id = 'x' + Date.now().toString(36);
+      g.items.push({ id: id, t: 'New item', s: '' });
+      saveItems(); build();
+      var el = root.querySelector('[data-item="' + id + '"] .t-text');
+      if (el) {
+        el.focus();
+        var r = document.createRange(); r.selectNodeContents(el);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      }
+    }
   });
 
   document.querySelectorAll('.chip').forEach(function (c) {
@@ -208,7 +325,7 @@
     });
   });
 
-  render();
+  build();
 })();
 </script>
 </body>

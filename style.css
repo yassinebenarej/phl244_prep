@@ -410,3 +410,27 @@
 }
 .sum-card.editing .sum-content:focus { outline-color: var(--ink-mute); }
 .sum-card.editing .sum-edit { color: var(--done); font-weight: 700; }
+
+/* ---- editing ---- */
+.del {
+  flex: none; align-self: center; width: 26px; height: 26px; margin-left: 8px; padding: 0;
+  background: transparent; border: 1px solid var(--line-strong); border-radius: 6px;
+  color: var(--t-prf); font-family: inherit; font-size: 16px; line-height: 1; cursor: pointer;
+}
+.del:hover { background: var(--wa08); }
+.add-item {
+  display: block; margin: 8px 0 4px 36px; padding: 6px 10px; background: transparent;
+  border: 1px dashed var(--line-strong); border-radius: 6px; color: var(--ink-mute);
+  font-family: inherit; font-size: 12.5px; cursor: pointer;
+}
+.add-item:hover { background: var(--wa035); color: var(--ink); }
+body.editing .t-text, body.editing .s-text {
+  outline: 1px dashed var(--line-strong); outline-offset: 3px; border-radius: 3px; cursor: text;
+  background: var(--wa035);
+}
+body.editing .t-text:focus, body.editing .s-text:focus { outline-color: var(--ink-mute); background: var(--wa08); }
+body.editing .s-text[data-empty="1"]:empty::before { content: "add a note"; color: var(--ink-mute); opacity: 0.6; }
+.s-text[data-empty="1"]:not(:focus) { display: none; }
+body.editing .s-text[data-empty="1"] { display: block; }
+#edit-toggle { margin-left: 8px; }
+body.editing #edit-toggle { color: var(--done); font-weight: 700; }
