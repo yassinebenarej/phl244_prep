@@ -7,7 +7,7 @@
 <meta name="description" content="Checklist for PHL 244 Writing Assignment 2: Hull, Davidson, and Broome on Williams — every issue, position, argument and objection to be able to write cold." />
 <meta name="robots" content="noindex" />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-<link rel="stylesheet" href="style.css?v=2" />
+<link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
 
@@ -140,7 +140,7 @@
           '<span class="title">' + (g.numbered ? '<span class="idx">' + (i + 1) + '</span>' : '') + '<span class="t-text">' + esc(it.t) + '</span></span>' +
           '<span class="subtitle s-text" data-empty="' + (it.s ? '' : '1') + '">' + esc(it.s || '') + '</span>' +
         '</span>' +
-        '<button class="del" type="button" aria-label="Delete item" hidden>&times;</button>' +
+        '<button class="del" type="button" aria-label="Delete this item">&times;</button>' +
       '</label>';
     }).join('');
 
@@ -239,7 +239,7 @@
       el.contentEditable = editing ? 'true' : 'false';
       el.spellcheck = true;
     });
-    root.querySelectorAll('.del, .add-item').forEach(function (el) { el.hidden = !editing; });
+    root.querySelectorAll('.add-item').forEach(function (el) { el.hidden = !editing; });
     editBtn.textContent = editing ? 'Done' : 'Edit';
     resetBtn.hidden = !editing;
   }
@@ -275,6 +275,30 @@
     saveItems();
   });
 
+  function removeItem(id, focusPrev) {
+    var f = findItem(id);
+    if (!f) return;
+    var prev = f.i > 0 ? f.g.items[f.i - 1].id : null;
+    f.g.items.splice(f.i, 1);
+    saveItems(); save(); build();
+    if (focusPrev && prev) {
+      var el = root.querySelector('[data-item="' + prev + '"] .t-text');
+      if (el) {
+        el.focus();
+        var r = document.createRange(); r.selectNodeContents(el); r.collapse(false);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      }
+    }
+  }
+
+  // Backspace on an empty title removes the item, as on the Astuces page.
+  root.addEventListener('keydown', function (e) {
+    if (e.key === 'Backspace' && editing && e.target.matches && e.target.matches('.t-text') && e.target.textContent === '') {
+      e.preventDefault();
+      removeItem(e.target.closest('.row-item').dataset.item, true);
+    }
+  });
+
   // Enter ends the line instead of inserting a line break; pasting is plain text.
   root.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && e.target.matches && e.target.matches('.t-text, .s-text')) {
@@ -293,11 +317,7 @@
     var del = e.target.closest('.del');
     if (del) {
       e.preventDefault();
-      var f = findItem(del.closest('.row-item').dataset.item);
-      if (f && confirm('Delete this item?')) {
-        f.g.items.splice(f.i, 1);
-        saveItems(); save(); build();
-      }
+      removeItem(del.closest('.row-item').dataset.item);
       return;
     }
     var add = e.target.closest('.add-item');
