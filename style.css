@@ -422,12 +422,16 @@
 .del:hover { color: var(--t-prf); }
 .del:focus-visible { outline: 2px solid var(--ink-dim); outline-offset: 1px; }
 @media (hover: none) { .del { opacity: 0.7; } }
-.add-item {
-  display: block; margin: 8px 0 4px 36px; padding: 6px 10px; background: transparent;
-  border: 1px dashed var(--line-strong); border-radius: 6px; color: var(--ink-mute);
-  font-family: inherit; font-size: 12.5px; cursor: pointer;
+.add-btn {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; margin-left: 8px; border-radius: 6px;
+  color: var(--ink-mute); font-size: 16px; line-height: 1; cursor: pointer;
+  opacity: 0; transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
 }
-.add-item:hover { background: var(--wa035); color: var(--ink); }
+.group-head:hover .add-btn, .add-btn:focus-visible { opacity: 1; }
+.add-btn:hover { background: var(--wa08); color: var(--ink); }
+.add-btn:focus-visible { outline: 2px solid var(--ink-dim); outline-offset: 1px; }
+@media (hover: none) { .add-btn { opacity: 0.8; } }
 .t-text, .s-text {
   cursor: text; border-radius: 6px; padding: 4px 6px; margin: -4px -6px;
   transition: background 0.12s ease;
