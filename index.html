@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PHL 244 Writing Assignment 2 — prep</title>
+<meta name="description" content="Checklist for PHL 244 Writing Assignment 2: Hull, Davidson, and Broome on Williams — every issue, position, argument and objection to be able to write cold." />
+<meta name="robots" content="noindex" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="stylesheet" href="style.css?v=1" />
+</head>
+<body>
+
+<div class="page">
+
+  <div class="mast">
+    <span class="emoji">🧠</span>
+    <h1>PHL 244 · Writing Assignment 2</h1>
+    <span class="when">Mon 9 Nov · in class · closed book · pen &amp; paper</span>
+  </div>
+
+  <div class="toolbar">
+    <div class="filters">
+      <button class="chip active" data-filter="todo" type="button">To do <span class="chip-count" id="c-todo">0</span></button>
+      <button class="chip" data-filter="done" type="button">Done <span class="chip-count" id="c-done">0</span></button>
+      <button class="chip" data-filter="all" type="button">All <span class="chip-count" id="c-all">0</span></button>
+    </div>
+    <span class="spacer"></span>
+  </div>
+
+  <div id="groups"></div>
+
+</div>
+
+<script>
+(function () {
+  var KEY = 'phl244-wa2-checklist';
+
+  var GROUPS = [
+    { id: 'prep', name: 'Prep', color: 'var(--t-prep)', numbered: true, items: [
+      { id: 'p1', t: 'Reread Hull, Davidson, Williams and Broome', s: 'All four are in the PHL244 folder. Read for the issue, the position and the argument, not just the gist.' },
+      { id: 'p2', t: 'Go through the Lecture 5 and Lecture 6 handouts and your notes', s: 'The prompts cover only issues, positions, arguments and objections from class. No surprises.' },
+      { id: 'p3', t: 'Review your Lecture 3 notes on Putnam', s: 'Hull borrows his account of natural kind terms from Putnam, so it can turn up in a Hull question.' },
+      { id: 'p4', t: 'Write each definition below from memory, in your own words' },
+      { id: 'p5', t: 'Prepare one extended example per reading and rehearse it', s: 'It has to illustrate the issue, the position and the argument all at once.' },
+      { id: 'p6', t: 'Write a full answer by hand to a practice prompt, one paragraph per section', s: 'Use the Nagel-style prompt from the assignment instructions as the template.' },
+      { id: 'p7', t: 'Time yourself', s: 'Two prompts to choose from, about one paragraph per section, no intro and no conclusion.' },
+      { id: 'p8', t: 'Take what is left to office hours', s: 'Mondays 4–5pm on Zoom, before class.' }
+    ]},
+    { id: 'fmt', name: 'The format — every prompt has the same four parts', color: 'var(--t-u1)', items: [
+      { id: 'f1', t: '(i) Summarize an issue' },
+      { id: 'f2', t: '(ii) Present a position on that issue' },
+      { id: 'f3', t: '(iii) Present an argument in favour of that position', s: 'Or an objection, and how it is answered, when the prompt asks for one.' },
+      { id: 'f4', t: '(iv) Illustrate all of the above with one extended example' },
+      { id: 'f5', t: 'One paragraph per section, no introduction, no conclusion' },
+      { id: 'f6', t: 'Pick the prompt you can answer best, quickly', s: 'The two prompts cover two of the three readings: Hull, Davidson, Broome.' }
+    ]},
+    { id: 'hull', name: 'Hull — On Human Nature', color: 'var(--t-u2)', items: [
+      { id: 'h1', t: 'The assumptions Hull says philosophical accounts of human nature make', s: 'HUMAN BEINGS as a NATURAL KIND (in Putnam’s sense); HUMAN NATURE AND ETHICS (human nature should ground ethical claims, including human rights).' },
+      { id: 'h2', t: 'Putnam’s account of natural kind terms, as Hull borrows it' },
+      { id: 'h3', t: 'The view Hull attacks: HUMAN NATURE IS TO BE HOMO SAPIENS', s: 'The nature of the kind human beings is to be homo sapiens, so a good biological account of homo sapiens is a good account of human nature.' },
+      { id: 'h4', t: 'Hull’s claim and why biology supports it', s: 'Like all species, homo sapiens is incredibly variable and unstable. Its members share few features, and those do not meet the human-nature-and-ethics constraint.' },
+      { id: 'h5', t: 'Candidate: shared genetic and ancestry-based features', s: 'Members share ancestry-related features but vary a lot genetically. It is unclear how that could ground ethical claims or human rights.' },
+      { id: 'h6', t: 'Candidate: shared actual behavioural characteristics', s: 'Not shared by every member. That is unsurprising: a behaviour shared by all members of a species at all times is very rare.' },
+      { id: 'h7', t: 'Candidate: shared potential behavioural characteristics — individual potentiality', s: 'Language, reason, laughter. Counterexample: people born with an underdeveloped cerebrum do not have the potential.' },
+      { id: 'h8', t: 'Candidate: species-potentiality, and the notion of “normal development”', s: 'Development towards the norm, versus the prevalent developmental pathway in recent, locally prevalent environments.' },
+      { id: 'h9', t: 'Hull’s conclusion', s: 'The link between homo sapiens and the natural kind human beings is flimsy. It is not reasonable to expect the former to be the nature of the latter.' },
+      { id: 'h10', t: 'An extended example illustrating Hull’s issue, position and argument' }
+    ]},
+    { id: 'dav', name: 'Davidson — Rational Animals', color: 'var(--t-def)', items: [
+      { id: 'd1', t: 'The issue: what is it to be rational, if human beings are rational animals?', s: 'Davidson assumes rational and non-rational animals can both form representational mental states, and rational ones form some special sort.' },
+      { id: 'd2', t: 'Davidson’s position: RATIONALITY', s: 'To be rational is to be capable of forming beliefs, including beliefs about one’s own beliefs.' },
+      { id: 'd3', t: 'The rival view: STRUCTURALISM about rationality', s: 'To be rational is to be capable of an inferentially coherent system of beliefs.' },
+      { id: 'd4', t: 'Davidson against structuralism', s: 'The three belief systems (inconsistent, consistent, inferentially coherent), referential opacity, and the squirrel and oak tree beliefs. Any animal that has beliefs already has a somewhat coherent system.' },
+      { id: 'd5', t: 'The rival view: EVIDENTIALISM about rationality', s: 'To be rational is to be capable of adjusting beliefs in light of contrary evidence.' },
+      { id: 'd6', t: 'Davidson against evidentialism', s: 'Judging by behaviour, non-rational animals can revise beliefs in light of evidence, if they have beliefs at all.' },
+      { id: 'd7', t: 'Davidson’s positive argument from surprise', s: 'Jon believes P, is surprised, then believes not-P. He has changed his belief about his own belief, so he has beliefs about beliefs and cares whether they are true.' },
+      { id: 'd8', t: 'Davidson’s positive argument from language', s: 'Hearing Dr Liz say not-P, Jon realizes his beliefs do not match hers and adjusts them. Coordinating beliefs with others needs beliefs about beliefs.' },
+      { id: 'd9', t: 'Davidson’s conclusion', s: 'Rationality is both mental (beliefs about one’s beliefs) and social (coordinating beliefs with other people’s).' },
+      { id: 'd10', t: 'An extended example illustrating Davidson’s issue, position and argument' }
+    ]},
+    { id: 'bro', name: 'Williams and Broome — Reasons and Rationality', color: 'var(--t-thm)', items: [
+      { id: 'b1', t: 'The issue: reasons-based accounts of rationality', s: 'To be rational is to respond correctly to reasons. Motivated by irrationality cases: inconsistent beliefs and akrasia.' },
+      { id: 'b2', t: 'The two requirements: CONSISTENT BELIEFS and KRASIA', s: 'One concerns beliefs, the other action. The proposed common element is sensitivity to reasons.' },
+      { id: 'b3', t: 'Williams on internal reasons', s: 'A has an internal reason to do F just if A is motivated to do F by a sound deliberative route from A’s motivational set.' },
+      { id: 'b4', t: 'Sound deliberative route, and motivational set', s: 'Valid inferences from true premises; A’s relevant beliefs and desires.' },
+      { id: 'b5', t: 'Williams on external reasons, and the persuasion argument', s: 'If external reasons were just internal ones, “you are motivated to do F, yet you have a reason not to” would always be false.' },
+      { id: 'b6', t: 'Williams’s conclusions, minimal and ambitious', s: 'Minimal: if external reasons exist, they are distinct from internal ones. Ambitious: there are none.' },
+      { id: 'b7', t: 'Broome’s objection if the relevant reasons are external', s: 'The salmonella case: it is rational to eat the dish you cannot know is contaminated, though there is an overwhelming external reason not to. Rationality and reasons come apart.' },
+      { id: 'b8', t: 'Broome’s objection if the relevant reasons are internal', s: 'The attitudinal account and the bootstrapping objection (coffee, bitter drinks, 50/50 evidence).' },
+      { id: 'b9', t: 'Broome’s conclusion', s: 'Reasons-based accounts are false. With external reasons the account is too strict; with internal reasons it has implausible consequences.' },
+      { id: 'b10', t: 'An extended example illustrating Broome’s issue, position and argument' }
+    ]},
+    { id: 'def', name: 'Definitions to write cold', color: 'var(--t-prf)', items: [
+      { id: 'e1', t: 'Natural kind term (Putnam)' },
+      { id: 'e2', t: 'HUMAN NATURE IS TO BE HOMO SAPIENS' },
+      { id: 'e3', t: 'Individual potentiality and species-potentiality' },
+      { id: 'e4', t: 'Rationality (Davidson)' },
+      { id: 'e5', t: 'Structuralism and evidentialism about rationality' },
+      { id: 'e6', t: 'Referential opacity' },
+      { id: 'e7', t: 'Reasons-based account of rationality' },
+      { id: 'e8', t: 'Internal reason, external reason (Williams)' },
+      { id: 'e9', t: 'Sound deliberative route, motivational set' },
+      { id: 'e10', t: 'Attitudinal account of internal reasons' }
+    ]}
+  ];
+
+  var TICK = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5 L6.5 12 L13 4.5" /></svg>';
+
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  var openState = {};
+  try { openState = JSON.parse(localStorage.getItem(KEY + '-open') || '{}') || {}; } catch (e) { openState = {}; }
+
+  var filter = 'todo';
+  var root = document.getElementById('groups');
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+  root.innerHTML = GROUPS.map(function (g) {
+    var rows = g.items.map(function (it, i) {
+      return '<label class="row-item" data-item="' + it.id + '">' +
+        '<span class="check-zone">' +
+          '<input type="checkbox" data-id="' + it.id + '" />' +
+          '<span class="check">' + TICK + '</span>' +
+        '</span>' +
+        '<span class="title-wrap">' +
+          '<span class="title">' + (g.numbered ? '<span class="idx">' + (i + 1) + '</span>' : '') + esc(it.t) + '</span>' +
+          (it.s ? '<span class="subtitle">' + it.s + '</span>' : '') +
+        '</span>' +
+      '</label>';
+    }).join('');
+
+    return '<div class="group' + (openState[g.id] === false ? '' : ' open') + '" data-group="' + g.id + '" style="--sq:' + g.color + '">' +
+      '<button class="group-head" type="button" aria-expanded="true">' +
+        '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4.5 2.5 8.5 6 4.5 9.5" /></svg>' +
+        '<span class="type-square"></span>' +
+        '<span class="name">' + esc(g.name) + '</span>' +
+        '<span class="count"></span>' +
+        '<span class="progress-mini"><span class="progress-mini-fill"></span></span>' +
+      '</button>' +
+      '<div class="group-body">' + rows + '</div>' +
+    '</div>';
+  }).join('');
+
+  var boxes = Array.prototype.slice.call(root.querySelectorAll('input[type=checkbox]'));
+
+  function save() {
+    var out = {};
+    boxes.forEach(function (b) { if (b.checked) out[b.dataset.id] = 1; });
+    try { localStorage.setItem(KEY, JSON.stringify(out)); } catch (e) {}
+  }
+  function saveOpen() {
+    try { localStorage.setItem(KEY + '-open', JSON.stringify(openState)); } catch (e) {}
+  }
+
+  function render() {
+    var done = 0;
+    boxes.forEach(function (b) {
+      var row = b.closest('.row-item');
+      row.classList.toggle('done', b.checked);
+      if (b.checked) done++;
+      var show = filter === 'all' || (filter === 'done' ? b.checked : !b.checked);
+      row.style.display = show ? '' : 'none';
+    });
+
+    document.getElementById('c-todo').textContent = String(boxes.length - done);
+    document.getElementById('c-done').textContent = String(done);
+    document.getElementById('c-all').textContent = String(boxes.length);
+
+    GROUPS.forEach(function (g) {
+      var el = root.querySelector('[data-group="' + g.id + '"]');
+      var ins = el.querySelectorAll('input[type=checkbox]');
+      var hit = el.querySelectorAll('input[type=checkbox]:checked').length;
+      el.querySelector('.count').textContent = hit + '/' + ins.length;
+      el.querySelector('.progress-mini-fill').style.width = (ins.length ? (hit / ins.length) * 100 : 0) + '%';
+      // A group with nothing left to show under the active filter collapses
+      // out of the way rather than leaving a header over empty space.
+      var visible = Array.prototype.filter.call(ins, function (b) {
+        return b.closest('.row-item').style.display !== 'none';
+      }).length;
+      el.style.display = visible === 0 && filter !== 'all' ? 'none' : '';
+    });
+  }
+
+  boxes.forEach(function (b) {
+    if (saved[b.dataset.id]) b.checked = true;
+    b.addEventListener('change', function () { save(); render(); });
+  });
+
+  root.querySelectorAll('.group-head').forEach(function (h) {
+    h.addEventListener('click', function () {
+      var g = h.closest('.group');
+      var id = g.dataset.group;
+      var open = g.classList.toggle('open');
+      h.setAttribute('aria-expanded', String(open));
+      openState[id] = open;
+      saveOpen();
+    });
+  });
+
+  document.querySelectorAll('.chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('active'); });
+      c.classList.add('active');
+      filter = c.dataset.filter;
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
