@@ -154,7 +154,7 @@
   /* ---- rows ---- */
   .row-item {
     display: grid;
-    grid-template-columns: 44px 1fr;
+    grid-template-columns: 44px 1fr auto;
     align-items: start;
     gap: 12px;
     padding: 11px 18px 11px 0;
@@ -203,7 +203,7 @@
   @media (max-width: 560px) {
     .page { padding: 28px 16px 80px; }
     .progress-mini { flex-basis: 60px; }
-    .row-item { grid-template-columns: 32px 1fr; padding-right: 0; }
+    .row-item { grid-template-columns: 32px 1fr auto; padding-right: 0; }
   }
 
 /* ---- cross-page navigation ---- */
@@ -413,7 +413,7 @@
 
 /* ---- editing ---- */
 .del {
-  flex: none; align-self: flex-start; margin: 2px 0 0 8px; padding: 3px 5px;
+  flex: none; align-self: flex-start; margin: 0; padding: 3px 5px;
   background: transparent; border: 0; border-radius: 5px;
   color: var(--ink-mute); font-family: inherit; font-size: 15px; line-height: 1; cursor: pointer;
   opacity: 0; transition: opacity 0.12s ease, color 0.12s ease;
