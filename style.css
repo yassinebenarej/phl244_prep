@@ -428,13 +428,21 @@
   font-family: inherit; font-size: 12.5px; cursor: pointer;
 }
 .add-item:hover { background: var(--wa035); color: var(--ink); }
-body.editing .t-text, body.editing .s-text {
-  outline: 1px dashed var(--line-strong); outline-offset: 3px; border-radius: 3px; cursor: text;
-  background: var(--wa035);
+.t-text, .s-text {
+  cursor: text; border-radius: 6px; padding: 4px 6px; margin: -4px -6px;
+  transition: background 0.12s ease;
 }
-body.editing .t-text:focus, body.editing .s-text:focus { outline-color: var(--ink-mute); background: var(--wa08); }
-body.editing .s-text[data-empty="1"]:empty::before { content: "add a note"; color: var(--ink-mute); opacity: 0.6; }
+.t-text:hover, .s-text:hover { background: var(--wa04); }
+.t-text:focus, .s-text:focus {
+  outline: 0; background: var(--wa08); box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+/* An item with no note shows nothing, until you hover it and click "add a note". */
 .s-text[data-empty="1"]:not(:focus) { display: none; }
-body.editing .s-text[data-empty="1"] { display: block; }
-#edit-toggle { margin-left: 8px; }
-body.editing #edit-toggle { color: var(--done); font-weight: 700; }
+.row-item:hover .s-text[data-empty="1"] { display: block; }
+.s-text[data-empty="1"]:empty::before { content: "add a note"; color: var(--ink-mute); opacity: 0.6; }
+.restore { margin: 28px 0 8px; }
+.restore button {
+  background: transparent; border: 0; padding: 0; color: var(--ink-mute); opacity: 0.7;
+  font-family: inherit; font-size: 12px; cursor: pointer; text-decoration: underline;
+}
+.restore button:hover { opacity: 1; }

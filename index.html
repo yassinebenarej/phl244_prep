@@ -7,7 +7,7 @@
 <meta name="description" content="Checklist for PHL 244 Writing Assignment 2: Hull, Davidson, and Broome on Williams — every issue, position, argument and objection to be able to write cold." />
 <meta name="robots" content="noindex" />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-<link rel="stylesheet" href="style.css?v=3" />
+<link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body>
 
@@ -26,11 +26,11 @@
       <button class="chip" data-filter="all" type="button">All <span class="chip-count" id="c-all">0</span></button>
     </div>
     <span class="spacer"></span>
-    <button class="reset" id="reset-edits" type="button" hidden>Reset edits</button>
-    <button class="reset" id="edit-toggle" type="button">Edit</button>
   </div>
 
   <div id="groups"></div>
+
+  <p class="restore"><button id="reset-edits" type="button">Restore the original checklist</button></p>
 
 </div>
 
@@ -152,12 +152,11 @@
         '<span class="count"></span>' +
         '<span class="progress-mini"><span class="progress-mini-fill"></span></span>' +
       '</button>' +
-      '<div class="group-body">' + rows + '<button class="add-item" type="button" hidden>+ Add item</button></div>' +
+      '<div class="group-body">' + rows + '<button class="add-item" type="button">+ Add item</button></div>' +
     '</div>';
   }).join(''); }
 
   var boxes = [];
-  var editing = false;
 
   function save() {
     // Keep ticks for items that are not currently in the DOM (e.g. hidden groups are still in the DOM, so this is just a guard).
@@ -176,7 +175,7 @@
       var row = b.closest('.row-item');
       row.classList.toggle('done', b.checked);
       if (b.checked) done++;
-      var show = editing || filter === 'all' || (filter === 'done' ? b.checked : !b.checked);
+      var show = filter === 'all' || (filter === 'done' ? b.checked : !b.checked);
       row.style.display = show ? '' : 'none';
     });
 
@@ -195,7 +194,7 @@
       var visible = Array.prototype.filter.call(ins, function (b) {
         return b.closest('.row-item').style.display !== 'none';
       }).length;
-      el.style.display = visible === 0 && filter !== 'all' && !editing ? 'none' : '';
+      el.style.display = visible === 0 && filter !== 'all' ? 'none' : '';
     });
   }
 
@@ -220,9 +219,9 @@
     render();
   }
 
-  // ---- editing: titles, notes, add and delete; stored in this browser ----
-  var editBtn = document.getElementById('edit-toggle');
+  // ---- editing, as in Aced: hover shows a text cursor, click edits, it saves as you type ----
   var resetBtn = document.getElementById('reset-edits');
+  var skipSelect = false;
 
   function findItem(id) {
     for (var i = 0; i < GROUPS.length; i++) {
@@ -234,21 +233,11 @@
   }
 
   function applyEditMode() {
-    document.body.classList.toggle('editing', editing);
     root.querySelectorAll('.t-text, .s-text').forEach(function (el) {
-      el.contentEditable = editing ? 'true' : 'false';
+      el.contentEditable = 'true';
       el.spellcheck = true;
     });
-    root.querySelectorAll('.add-item').forEach(function (el) { el.hidden = !editing; });
-    editBtn.textContent = editing ? 'Done' : 'Edit';
-    resetBtn.hidden = !editing;
   }
-
-  editBtn.addEventListener('click', function () {
-    editing = !editing;
-    applyEditMode();
-    render();
-  });
 
   resetBtn.addEventListener('click', function () {
     if (!confirm('Discard all your edits, additions and deletions and restore the original checklist?')) return;
@@ -256,11 +245,10 @@
     location.reload();
   });
 
-  // While editing, clicking text must place the cursor, not toggle the tick.
+  // Clicking the text edits it; only the checkbox toggles the tick.
   root.addEventListener('click', function (e) {
-    if (!editing) return;
     var row = e.target.closest('.row-item');
-    if (row && !e.target.closest('.check-zone')) e.preventDefault();
+    if (row && !e.target.closest('.check-zone') && !e.target.closest('.del')) e.preventDefault();
   });
 
   root.addEventListener('input', function (e) {
@@ -284,6 +272,7 @@
     if (focusPrev && prev) {
       var el = root.querySelector('[data-item="' + prev + '"] .t-text');
       if (el) {
+        skipSelect = true;
         el.focus();
         var r = document.createRange(); r.selectNodeContents(el); r.collapse(false);
         var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
@@ -293,9 +282,32 @@
 
   // Backspace on an empty title removes the item, as on the Astuces page.
   root.addEventListener('keydown', function (e) {
-    if (e.key === 'Backspace' && editing && e.target.matches && e.target.matches('.t-text') && e.target.textContent === '') {
+    if (e.key === 'Backspace' && e.target.matches && e.target.matches('.t-text') && e.target.textContent === '') {
       e.preventDefault();
       removeItem(e.target.closest('.row-item').dataset.item, true);
+    }
+  });
+
+  root.addEventListener('focusin', function (e) {
+    var el = e.target;
+    if (!(el.matches && el.matches('.t-text, .s-text'))) return;
+    el.dataset.orig = el.textContent;
+    if (skipSelect) { skipSelect = false; return; }
+    setTimeout(function () {
+      var r = document.createRange(); r.selectNodeContents(el);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    }, 0);
+  });
+  root.addEventListener('focusout', function (e) {
+    var el = e.target;
+    if (el.matches && el.matches('.t-text, .s-text')) window.getSelection().removeAllRanges();
+  });
+  root.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && e.target.matches && e.target.matches('.t-text, .s-text')) {
+      e.preventDefault();
+      e.target.textContent = e.target.dataset.orig || '';
+      e.target.dispatchEvent(new Event('input', { bubbles: true }));
+      e.target.blur();
     }
   });
 
